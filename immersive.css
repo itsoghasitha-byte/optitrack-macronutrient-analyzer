@@ -19,3 +19,20 @@ html{scroll-behavior:smooth}
 .landmark-copy p{margin:0;max-width:48ch;font-size:13px;line-height:1.6;color:#e0e9f0}
 .landmark-credit{font-size:11px;line-height:1.6;opacity:.72;margin-top:14px}
 @media(max-width:620px){.landmark-grid{grid-template-columns:1fr}.landmark-card{min-height:235px;aspect-ratio:4/3}.landmark-copy h3{font-size:24px}}
+
+
+/* SUGAR RUSH + ENDLESS-RUNNER INSPIRED MOTION LAYER */
+:root{--runner-glow:color-mix(in srgb,var(--opti-green,#b9d879) 48%,transparent)}
+#opti-world{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden;perspective:900px;opacity:.62}
+#opti-world canvas{display:block;width:100%;height:100%}
+#opti-runner-track{position:absolute;left:50%;bottom:-17vh;width:min(100vw,900px);height:64vh;transform:translateX(-50%) rotateX(62deg);transform-origin:bottom;opacity:.27;background:repeating-linear-gradient(90deg,transparent 0 32%,var(--opti-green,#b9d879) 32.2% 32.5%,transparent 32.8% 66%);mask-image:linear-gradient(transparent,#000 32%,#000 82%,transparent);animation:optiTrack 1.6s linear infinite}
+#opti-runner-track:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent 0 48px,var(--opti-plum,#c58cc7) 49px 51px,transparent 52px 96px);animation:optiTrack 1s linear infinite}
+.sugar-spark{position:fixed;z-index:20;pointer-events:none;width:7px;height:7px;border-radius:2px;background:var(--opti-citrus,#e6b77b);box-shadow:0 0 13px var(--opti-green,#b9d879);animation:sugarBurst 950ms cubic-bezier(.16,.7,.3,1) forwards}
+.sugar-spark:nth-child(3n){background:var(--opti-plum,#c58cc7);border-radius:50%}
+.sugar-spark:nth-child(4n){background:var(--opti-green,#b9d879)}
+.sugar-rush{animation:sugarRush .48s cubic-bezier(.2,.8,.2,1)}
+@keyframes sugarBurst{0%{opacity:0;transform:translate(0,0) scale(.3) rotate(0)}12%{opacity:1}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(0) rotate(220deg)}}
+@keyframes sugarRush{0%{filter:brightness(1)}35%{filter:brightness(1.25) saturate(1.3)}100%{filter:brightness(1)}}
+@keyframes optiTrack{to{background-position:0 96px}}
+@media(prefers-reduced-motion:reduce){#opti-runner-track,.sugar-spark{animation:none!important}.sugar-spark{display:none!important}}
+@media(max-width:650px){#opti-world{opacity:.34}#opti-runner-track{height:44vh;opacity:.18}}
