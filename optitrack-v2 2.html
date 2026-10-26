@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang='en' data-theme='dark'>
+<head>
+<meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1, viewport-fit=cover'>
+<meta name='theme-color' content='#070516'>
+<title>OptiTrack Macronutrient Analyzer</title>
+<meta name='description' content='Colorful macro tracker with a protein product library, goals, trends and an animated 3D sugar rush runner.'>
+<style>
+:root[data-theme=dark]{--bg:#070516;--ink:#f6f1ff;--mute:#b3a6d6;--c1:#ff3d9a;--c2:#ff9f1c;--c3:#ffe14d;--c4:#2af5b5;--c5:#38d5ff;--c6:#a66bff;--on:#1b0a28;--glass:rgba(20,10,48,.66);--line:rgba(246,241,255,.18);--shadow:rgba(0,0,0,.6)}
+:root[data-theme=light]{--bg:#fff3fa;--ink:#27103b;--mute:#6d5486;--c1:#ff2d8a;--c2:#ff7a00;--c3:#f2b600;--c4:#00b88a;--c5:#0092e0;--c6:#7b3cff;--on:#ffffff;--glass:rgba(255,255,255,.74);--line:rgba(39,16,59,.16);--shadow:rgba(120,30,110,.3)}
+:root{--grad:linear-gradient(90deg,var(--c1),var(--c2),var(--c3))}
+*{box-sizing:border-box;margin:0}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{min-height:100vh;background:var(--bg);color:var(--ink);font:16px/1.55 -apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,sans-serif;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);overflow-x:hidden;transition:background .4s,color .4s}
+#gl{position:fixed;inset:0;width:100%;height:100%;z-index:-1;display:block}
+button,input,select{font:inherit;color:inherit}
+select option,select optgroup{color:#222}
+:focus-visible{outline:2px solid var(--c5);outline-offset:2px}
+.top{position:sticky;top:0;z-index:20;display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;padding:10px 4vw;background:var(--glass);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-bottom:2px solid transparent;border-image:linear-gradient(90deg,var(--c1),var(--c2),var(--c3),var(--c4),var(--c5),var(--c6)) 1}
+.brand{font-weight:900;letter-spacing:.03em;display:flex;align-items:center;gap:8px}
+.dot{width:14px;height:14px;border-radius:50%;background:conic-gradient(var(--c1),var(--c2),var(--c3),var(--c4),var(--c5),var(--c6),var(--c1));box-shadow:0 0 14px var(--c1);animation:spin1 4s linear infinite}
+@keyframes spin1{to{transform:rotate(360deg)}}
+nav{display:flex;gap:6px;flex-wrap:wrap;flex:1}
+nav button{border:0;background:transparent;padding:7px 13px;border-radius:999px;cursor:pointer;color:var(--mute)}
+nav button[aria-selected=true]{background:var(--grad);color:var(--on);font-weight:800}
+.tools{display:flex;align-items:center;gap:10px}
+.meter{position:relative;width:150px;height:30px;border-radius:999px;border:1px solid var(--line);overflow:hidden;font-size:.76rem;display:flex;align-items:center;justify-content:center}
+.meter i{position:absolute;left:0;top:0;bottom:0;width:0;background:linear-gradient(90deg,var(--c4),var(--c3),var(--c1));opacity:.55;transition:width .6s}
+.meter span{position:relative;font-weight:700}
+.meter.full i{opacity:.95;animation:blink .5s infinite alternate}
+.ib{border:1px solid var(--line);background:transparent;border-radius:999px;padding:6px 14px;cursor:pointer}
+main{max-width:1180px;margin:auto;padding:22px 4vw 80px}
+.page[hidden]{display:none}
+h1{font-size:clamp(1.9rem,5.5vw,3.2rem);letter-spacing:-.02em;line-height:1.05;font-weight:900;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;width:fit-content;max-width:100%}
+h2{font-size:1.25rem;margin-bottom:8px}
+.sub{color:var(--mute);margin:6px 0 18px;max-width:62ch}
+.p{position:relative;overflow:hidden;background:var(--glass);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:inset 0 4px 0 var(--cc,var(--c1)),0 22px 44px -26px var(--shadow);transition:transform .25s,box-shadow .25s}
+.p:hover{transform:translateY(-4px) scale(1.008);box-shadow:inset 0 4px 0 var(--cc,var(--c1)),0 26px 50px -22px var(--cc,var(--c1))}
+.p::after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.28) 50%,transparent 70%);transform:translateX(-130%)}
+.p:hover::after{transform:translateX(130%);transition:transform .9s}
+.g>.p:nth-child(6n+1){--cc:var(--c1)}.g>.p:nth-child(6n+2){--cc:var(--c5)}.g>.p:nth-child(6n+3){--cc:var(--c3)}.g>.p:nth-child(6n+4){--cc:var(--c4)}.g>.p:nth-child(6n+5){--cc:var(--c6)}.g>.p:nth-child(6n+6){--cc:var(--c2)}
+.page:not([hidden]) .p{animation:spinIn .6s both;animation-delay:calc(var(--i,0)*45ms)}
+@keyframes spinIn{from{opacity:0;transform:perspective(700px) rotateY(-150deg) scale(.6)}to{opacity:1;transform:none}}
+.p.spin{animation:spin .8s ease-in-out!important}
+@keyframes spin{from{transform:perspective(700px) rotateY(0)}to{transform:perspective(700px) rotateY(360deg)}}
+.g{display:grid;gap:14px}
+.g4{grid-template-columns:repeat(auto-fit,minmax(min(100%,140px),1fr))}
+.g2{grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr))}
+.gf{grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr))}
+.ring{position:relative;text-align:center;padding:6px}
+.ring svg{width:100%;max-width:130px;transform:rotate(-90deg)}
+.tr{stroke:var(--line);fill:none;stroke-width:9}
+.fg{stroke:var(--rc);fill:none;stroke-width:9;stroke-linecap:round;transition:stroke-dasharray .8s;filter:drop-shadow(0 0 5px var(--rc))}
+.ring div{position:absolute;left:0;right:0;top:34%;line-height:1.1}
+.ring b{font-size:1.25rem;display:block}.ring small{color:var(--mute);font-size:.7rem}
+.ring span{display:block;margin-top:2px;color:var(--mute);font-size:.85rem}
+.btn{border:0;background:var(--grad);color:var(--on);font-weight:800;border-radius:999px;padding:9px 18px;cursor:pointer;transition:transform .15s,filter .2s}
+.btn:hover{transform:translateY(-2px);filter:saturate(1.3)}
+.btn.o{background:transparent;color:var(--ink);border:1px solid var(--line);font-weight:500}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.food{display:flex;flex-direction:column;gap:8px}
+.food b{font-size:1.02rem}.food small{color:var(--mute)}
+.brandtag{display:inline-block;font-size:.7rem;font-weight:800;border-radius:999px;padding:1px 10px;background:var(--cc,var(--c1));color:var(--on);width:fit-content}
+.chips{display:flex;gap:6px;flex-wrap:wrap;font-size:.78rem}
+.chips em{font-style:normal;border:1px solid var(--line);border-radius:999px;padding:1px 9px}
+.chips em:nth-child(1){border-color:var(--c2)}.chips em:nth-child(2){border-color:var(--c1)}.chips em:nth-child(3){border-color:var(--c5)}.chips em:nth-child(4){border-color:var(--c3)}.chips em:nth-child(5){border-color:var(--c6)}
+.tabs{display:flex;gap:4px;flex-wrap:wrap}
+.tb{border:1px solid var(--line);background:transparent;border-radius:999px;padding:3px 12px;font-size:.8rem;cursor:pointer}
+.card[data-cur=m] .tb[data-tab=m],.card[data-cur=l] .tb[data-tab=l],.card[data-cur=a] .tb[data-tab=a],.pf[aria-pressed=true]{background:var(--grad);color:var(--on);border-color:transparent;font-weight:700}
+.card [data-pane]{display:none}
+.card[data-cur=m] [data-pane=m],.card[data-cur=l] [data-pane=l],.card[data-cur=a] [data-pane=a]{display:block}
+table{width:100%;border-collapse:collapse;font-size:.9rem}td{padding:4px 0;border-bottom:1px solid var(--line)}td:last-child{text-align:right;font-weight:700}
+label{display:block;font-size:.85rem;color:var(--mute)}
+input,select{width:100%;margin-top:3px;padding:9px 12px;border-radius:12px;border:1px solid var(--line);background:transparent}
+details>summary{cursor:pointer;font-weight:800}
+.item{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.item:last-child{border:0}
+.item small{color:var(--mute);display:block}
+.note{color:var(--mute);font-size:.82rem;margin-top:10px}
+svg text{fill:var(--mute);font:11px sans-serif}
+#hud{position:fixed;left:4vw;bottom:calc(14px + env(safe-area-inset-bottom));z-index:15;padding:6px 14px;border-radius:999px;background:var(--glass);border:1px solid var(--line);font-size:.85rem;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+#hud b{color:var(--c3)}
+#banner{position:fixed;left:0;right:0;top:26%;z-index:30;text-align:center;pointer-events:none;font-weight:900;font-size:clamp(2.2rem,11vw,6rem);letter-spacing:.04em;background:conic-gradient(from 0deg,var(--c1),var(--c2),var(--c3),var(--c4),var(--c5),var(--c6),var(--c1));-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 6px 0 var(--shadow));opacity:0;transform:scale(.6)}
+.rush #banner{animation:pop 7s ease-out forwards}
+.rush .page .p{animation:pulse .5s ease-in-out infinite alternate}
+.rush h1{animation:rainbow 1.2s linear infinite}
+@keyframes rainbow{to{filter:hue-rotate(360deg)}}
+@keyframes pop{0%{opacity:0;transform:scale(.4) rotate(-6deg)}8%{opacity:1;transform:scale(1.15) rotate(3deg)}16%{transform:scale(1) rotate(-2deg)}85%{opacity:1}100%{opacity:0;transform:scale(1.1)}}
+@keyframes pulse{from{box-shadow:inset 0 4px 0 var(--cc,var(--c1)),0 0 0 0 transparent}to{box-shadow:inset 0 4px 0 var(--cc,var(--c1)),0 0 26px 0 var(--cc,var(--c1))}}
+@keyframes blink{from{opacity:.4}to{opacity:1}}
+.fx{position:fixed;z-index:50;width:10px;height:10px;border-radius:3px;pointer-events:none;animation:fly .9s cubic-bezier(.2,.8,.3,1) forwards}
+@keyframes fly{to{transform:translate(var(--dx),var(--dy)) rotate(var(--r)) scale(.2);opacity:0}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
+@media (max-width:640px){.meter{width:110px}}
+</style>
+</head>
+<body>
+<canvas id='gl' aria-hidden='true'></canvas>
+<header class='top'>
+  <div class='brand'><span class='dot'></span>OptiTrack</div>
+  <nav id='nav'></nav>
+  <div class='tools'><div class='meter' id='meter'><i id='mfill'></i><span id='mtxt'>Sugar 0 g</span></div><button class='ib' id='theme' aria-label='Switch between light and dark mode'>Light / Dark</button></div>
+</header>
+<div id='banner' aria-hidden='true'>SUGAR RUSH</div>
+<div id='hud'>Candy coins <b id='coins'>0</b></div>
+<main>
+<section class='page' id='dashboard'>
+  <h1>Today</h1><p class='sub' id='today'></p>
+  <div class='p'><div class='g g4' id='rings'></div></div>
+  <div class='g g2' style='margin-top:14px'>
+    <div class='p'><h2>Quick add</h2><div class='g gf' id='quick'></div></div>
+    <div class='g'>
+      <div class='p'><h2>Macro split today</h2><div id='donut1'></div><div class='row' style='margin-top:10px'><button class='btn' id='rushbtn'>Trigger sugar rush</button></div></div>
+      <div class='p'><h2>Top protein today</h2><div id='topp'></div></div>
+    </div>
+  </div>
+</section>
+<section class='page' id='log' hidden>
+  <h1>Meal log</h1><p class='sub'>Log a custom meal. Entries stay in this browser.</p>
+  <div class='g g2'>
+    <form class='p' id='form'>
+      <label>Food name<input id='fn' required maxlength='60'></label>
+      <div class='g g4' style='margin-top:8px'>
+        <label>Calories<input id='fc' type='number' min='0' max='5000' step='1' required></label>
+        <label>Protein g<input id='fp' type='number' min='0' max='500' step='.1' value='0'></label>
+        <label>Carbs g<input id='fb' type='number' min='0' max='800' step='.1' value='0'></label>
+        <label>Fat g<input id='ff' type='number' min='0' max='400' step='.1' value='0'></label>
+        <label>Sugar g<input id='fs' type='number' min='0' max='400' step='.1' value='0'></label>
+      </div>
+      <div class='row' style='margin-top:12px'><button class='btn' type='submit'>Add to today</button></div>
+    </form>
+    <div class='p'><h2>Today's entries</h2><div id='list'></div></div>
+  </div>
+</section>
+<section class='page' id='products' hidden>
+  <h1>Products and foods</h1><p class='sub'>Protein products sold in Canada and Sri Lanka, plus basic foods. Open the Macros, Label and About tabs on each card.</p>
+  <div class='p' style='margin-bottom:14px'>
+    <div class='row' id='pfs'></div>
+    <label style='margin-top:10px'>Search<input id='q' type='search' placeholder='Try whey, Anchor, oats'></label>
+    <details style='margin-top:12px' id='adddet'><summary>Add a product from its pack label</summary>
+      <form id='pform' style='margin-top:10px'>
+        <div class='g g2'>
+          <label>Brand<select id='pb'></select></label>
+          <label>Product name<input id='pn' required maxlength='60'></label>
+          <label>Serving (for example 1 scoop, 100 g)<input id='pu' maxlength='40' value='1 serving'></label>
+        </div>
+        <div class='g g4' style='margin-top:8px'>
+          <label>Calories<input id='pc' type='number' min='0' max='3000' step='1' required></label>
+          <label>Protein g<input id='pp' type='number' min='0' max='300' step='.1' value='0'></label>
+          <label>Carbs g<input id='pbb' type='number' min='0' max='500' step='.1' value='0'></label>
+          <label>Fat g<input id='pf' type='number' min='0' max='300' step='.1' value='0'></label>
+          <label>Sugar g<input id='ps' type='number' min='0' max='300' step='.1' value='0'></label>
+        </div>
+        <div class='row' style='margin-top:12px'><button class='btn' type='submit'>Save product</button></div>
+      </form>
+    </details>
+  </div>
+  <div class='g gf' id='pgrid'></div>
+  <p class='note'>Values are approximate and can differ by flavour, pack size and country. Always check your own pack's label. Sri Lankan brand cards have no preloaded numbers because I could not verify them, so enter yours from the pack.</p>
+</section>
+<section class='page' id='trends' hidden>
+  <h1>Trends</h1><p class='sub'>Daily calories for the last 7 days against your goal.</p>
+  <div class='g g2'><div class='p'><h2>Calories</h2><div id='bars'></div><p class='note' id='trendnote'></p></div><div class='p'><h2>Macro split today</h2><div id='donut2'></div></div></div>
+</section>
+<section class='page' id='goals' hidden>
+  <h1>Goals</h1><p class='sub'>Set your own daily targets. These are personal settings, not medical advice.</p>
+  <form class='p' id='gform'><div class='g g4'>
+    <label>Calories<input id='gc' type='number' min='500' max='8000' required></label>
+    <label>Protein g<input id='gp' type='number' min='0' max='500' required></label>
+    <label>Carbs g<input id='gb' type='number' min='0' max='900' required></label>
+    <label>Fat g<input id='gf' type='number' min='0' max='400' required></label>
+    <label>Sugar watch g<input id='gs' type='number' min='1' max='400' required></label></div>
+    <div class='row' style='margin-top:12px'><button class='btn' type='submit'>Save goals</button><button class='btn o' type='button' id='clrdemo'>Clear demo data</button></div><p class='note' id='gmsg'></p></form>
+</section>
+<section class='page' id='about' hidden>
+  <h1>About</h1><p class='sub'>OptiTrack Macronutrient Analyzer is a portfolio project built with Python, FastAPI, Pydantic and Plotly, with optional Supabase storage.</p>
+  <div class='g g2'>
+    <div class='p'><h2>This page</h2><p>This is a standalone front end. It keeps data in your browser and does not need the backend. Nothing here is medical or dietetic advice.</p><p class='note' id='api'>Checking backend</p></div>
+    <div class='p'><h2>Links</h2><p><a href='https://github.com/itsoghasitha-byte/optitrack-macronutrient-analyzer' style='color:var(--c5)'>GitHub repository</a></p><p><a href='https://optitrack-macronutrient-analyzer.vercel.app' style='color:var(--c5)'>Live demo</a></p><p class='note'>The 3D runner is an original endless-runner style scene made for this project.</p></div>
+  </div>
+</section>
+</main>
+<script>
+const $=id=>document.getElementById(id),root=document.documentElement;
+const mem={},store={get(k){try{return localStorage.getItem(k)}catch(e){return mem[k]||null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){mem[k]=v}}};
+function setTheme(t){root.dataset.theme=t;store.set('ot-theme',t);document.querySelector('meta[name=theme-color]').content=t==='dark'?'#070516':'#fff3fa';dispatchEvent(new Event('themechange'));if(window.renderAll)renderAll()}
+$('theme').onclick=()=>setTheme(root.dataset.theme==='dark'?'light':'dark');
+setTheme(store.get('ot-theme')||(matchMedia('(prefers-color-scheme:light)').matches?'light':'dark'));
+/* basic foods */
+const FOODS=[
+ {n:'Chicken breast',u:'100 g cooked',cal:165,p:31,c:0,f:3.6,s:0},{n:'White rice',u:'100 g cooked',cal:130,p:2.7,c:28,f:.3,s:.1},
+ {n:'Egg',u:'1 large',cal:72,p:6.3,c:.4,f:4.8,s:.2},{n:'Banana',u:'1 medium',cal:105,p:1.3,c:27,f:.4,s:14},
+ {n:'Rolled oats',u:'40 g dry',cal:150,p:5,c:27,f:2.5,s:1},{n:'Greek yoghurt',u:'170 g',cal:100,p:17,c:6,f:.7,s:6},
+ {n:'Almonds',u:'28 g',cal:164,p:6,c:6,f:14,s:1.2},{n:'Salmon',u:'100 g cooked',cal:208,p:20,c:0,f:13,s:0},
+ {n:'Avocado',u:'100 g',cal:160,p:2,c:9,f:15,s:.7},{n:'Sweet potato',u:'100 g baked',cal:90,p:2,c:21,f:.1,s:6.5},
+ {n:'Chocolate bar',u:'45 g',cal:235,p:3,c:26,f:13,s:24},{n:'Fizzy soda',u:'330 ml can',cal:139,p:0,c:35,f:0,s:35}].map((f,i)=>({...f,id:'f'+i,k:'basic',brand:'Basic food',about:'Typical approximate values for this food. Real values vary.'}));
+/* products: Canada (values from retailer and database listings, approximate) */
+const CA=[
+ {id:'on-gs',k:'ca',brand:'Optimum Nutrition',n:'Gold Standard 100% Whey',u:'1 scoop (about 30 g)',cal:120,p:24,c:3,f:1.5,s:1,about:'Whey protein powder sold in Canada. Listings show 120 kcal and 24 g protein per scoop; carbs, sugar and scoop size vary by flavour.'},
+ {id:'allmax',k:'ca',brand:'Allmax Nutrition',n:'AllWhey Classic',u:'1 scoop (about 46 g)',cal:190,p:30,c:11,f:2.5,s:7,about:'Canadian-brand whey blend. Listings show about 190 kcal, 30 g protein and 2.5 g fat per scoop; carbs and sugar vary by flavour.'}];
+const LKB=['Anchor','Highland','Kotmale','Ambewela','Elephant House','Nestle Lanka','Munchee','Maliban'];
+const LK=LKB.map(b=>({id:'lk-'+b,k:'lk',brand:b,n:'Add your pack label',tmpl:true,about:''}));
+const BRANDS=[['Canada',['Optimum Nutrition','Allmax Nutrition','Oikos','Liberte','Iogo','Other Canadian brand']],['Sri Lanka',LKB.concat(['Other Sri Lankan brand'])],['Other',['Other']]];
+$('pb').innerHTML=BRANDS.map(g=>`<optgroup label='${g[0]}'>${g[1].map(b=>`<option>${b}</option>`).join('')}</optgroup>`).join('');
+const G0={cal:2200,p:150,c:250,f:70,s:50};
+const pad=n=>String(n).padStart(2,'0');
+const dstr=o=>{const d=new Date();d.setDate(d.getDate()+o);return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())};
+let S;try{S=JSON.parse(store.get('ot-data'))}catch(e){S=null}
+if(!S||!S.entries){S={goals:{...G0},entries:[],products:[]};
+ for(let d=-6;d<=0;d++){const k=d===0?2:4;for(let j=0;j<k;j++){const f=FOODS[(Math.abs(d)*3+j*2+1)%10];S.entries.push({id:'d'+d+j,name:f.n,cal:f.cal,p:f.p,c:f.c,f:f.f,s:f.s,date:dstr(d),demo:true})}}}
+if(!S.products)S.products=[];
+const save=()=>store.set('ot-data',JSON.stringify(S));
+const ALL=()=>[...CA,...S.products,...LK,...FOODS];
+const tot=d=>S.entries.filter(e=>e.date===d).reduce((a,e)=>({cal:a.cal+e.cal,p:a.p+e.p,c:a.c+e.c,f:a.f+e.f,s:a.s+e.s}),{cal:0,p:0,c:0,f:0,s:0});
+const esc=s=>String(s).replace(/[&<>']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;'}[m]));
+const ring=(l,v,g,u,c)=>{const C=263.9,k=Math.min(v/g,1);return `<div class='ring' style='--rc:var(--${c})'><svg viewBox='0 0 100 100'><circle cx='50' cy='50' r='42' class='tr'/><circle cx='50' cy='50' r='42' class='fg' style='stroke-dasharray:${(C*k).toFixed(1)} ${C}'/></svg><div><b>${Math.round(v)}</b><small>of ${g} ${u}</small></div><span>${l}</span></div>`};
+function donut(el,t){const parts=[['Protein',t.p*4,'c1'],['Carbs',t.c*4,'c5'],['Fat',t.f*9,'c3']],sum=parts.reduce((a,x)=>a+x[1],0)||1,C=2*Math.PI*60;let off=0,svg=`<svg viewBox='0 0 200 150' style='width:100%;max-width:300px'><g transform='rotate(-90 70 75)'>`,lg='';
+ parts.forEach(x=>{const len=C*x[1]/sum;svg+=`<circle cx='70' cy='75' r='60' fill='none' stroke='var(--${x[2]})' stroke-width='22' stroke-dasharray='${len.toFixed(1)} ${C}' stroke-dashoffset='${(-off).toFixed(1)}'/>`;off+=len;lg+=`<div class='row' style='gap:6px'><i style='width:11px;height:11px;border-radius:3px;background:var(--${x[2]});display:inline-block'></i><span>${x[0]} ${Math.round(x[1]/sum*100)}%</span></div>`});
+ el.innerHTML=`<div class='row' style='gap:18px'>${svg}</g></svg><div>${lg}</div></div>`}
+function bars(){const days=[];for(let i=-6;i<=0;i++)days.push(dstr(i));const v=days.map(d=>tot(d).cal),mx=Math.max(...v,S.goals.cal)*1.12,W=640,H=250,bw=52,gap=(W-40-bw*7)/6;let s=`<svg viewBox='0 0 ${W} ${H}' style='width:100%'><defs><linearGradient id='bgd' x1='0' y1='0' x2='0' y2='1'><stop offset='0' style='stop-color:var(--c1)'/><stop offset='.6' style='stop-color:var(--c2)'/><stop offset='1' style='stop-color:var(--c6)'/></linearGradient></defs>`;
+ const gy=H-30-(S.goals.cal/mx)*(H-60);s+=`<line x1='10' x2='${W-10}' y1='${gy}' y2='${gy}' stroke='var(--c4)' stroke-width='2' stroke-dasharray='5 6'/><text x='${W-10}' y='${gy-6}' text-anchor='end'>Goal ${S.goals.cal}</text>`;
+ v.forEach((x,i)=>{const h=(x/mx)*(H-60),X=20+i*(bw+gap);s+=`<rect x='${X}' y='${H-30-h}' width='${bw}' height='${h}' rx='8' fill='url(#bgd)' opacity='${i===6?1:.7}'/><text x='${X+bw/2}' y='${H-30-h-6}' text-anchor='middle'>${Math.round(x)}</text><text x='${X+bw/2}' y='${H-10}' text-anchor='middle'>${new Date(days[i]+'T12:00').toLocaleDateString(undefined,{weekday:'short'})}</text>`});
+ $('bars').innerHTML=s+'</svg>';const avg=v.reduce((a,b)=>a+b,0)/7;$('trendnote').textContent='7-day average: '+Math.round(avg)+' kcal. Earlier days may be demo data until you clear it in Goals.'}
+function sparkle(x,y,n){for(let i=0;i<n;i++){const e=document.createElement('i'),a=Math.random()*6.283,d=40+Math.random()*100;e.className='fx';e.style.cssText=`left:${x}px;top:${y}px;background:var(--c${1+i%6});--dx:${(Math.cos(a)*d).toFixed(0)}px;--dy:${(Math.sin(a)*d-30).toFixed(0)}px;--r:${(Math.random()*540).toFixed(0)}deg`;document.body.appendChild(e);setTimeout(()=>e.remove(),950)}}
+document.addEventListener('pointerdown',e=>{const b=e.target.closest('button,summary,label.btn');if(b)sparkle(e.clientX,e.clientY,14);else if(e.target.closest('.p'))sparkle(e.clientX,e.clientY,7)});
+let rushTimer;
+function rush(){document.body.classList.remove('rush');void document.body.offsetWidth;document.body.classList.add('rush');clearTimeout(rushTimer);rushTimer=setTimeout(()=>document.body.classList.remove('rush'),7000);dispatchEvent(new Event('sugarrush'))}
+function add(e){const before=tot(dstr(0)).s;S.entries.push({id:Date.now()+'-'+Math.random().toString(36).slice(2,6),date:dstr(0),...e});save();renderAll();const after=tot(dstr(0)).s;if(e.s>=20||(before<S.goals.s&&after>=S.goals.s))rush();else dispatchEvent(new Event('candy'))}
+const chips=f=>`<div class='chips'><em>${Math.round(f.cal)} kcal</em><em>P ${+f.p.toFixed(1)}</em><em>C ${+f.c.toFixed(1)}</em><em>F ${+f.f.toFixed(1)}</em><em>Sugar ${+f.s.toFixed(1)}</em></div>`;
+let lastNew='';
+function card(f){
+ if(f.tmpl)return `<div class='p food card' data-cur='m'><span class='brandtag'>Sri Lanka</span><b>${esc(f.brand)}</b><p class='note' style='margin:0'>No numbers preloaded. Copy them from your pack to track this product exactly.</p><div class='row'><button class='btn' data-fill='${esc(f.brand)}'>Enter label values</button></div></div>`;
+ const tag=f.k==='ca'?'Canada':f.k==='mine'?'My product':f.k==='basic'?'Basic food':'Product';
+ return `<div class='p food card${f.id===lastNew?' spin':''}' data-cur='m'><span class='brandtag'>${tag}</span><b>${esc(f.n)}</b><small>${esc(f.brand)} | ${esc(f.u)}</small>
+ <div class='tabs' role='tablist'><button class='tb' data-tab='m'>Macros</button><button class='tb' data-tab='l'>Label</button><button class='tb' data-tab='a'>About</button></div>
+ <div data-pane='m'>${chips(f)}</div>
+ <div data-pane='l'><table><tr><td>Calories</td><td>${Math.round(f.cal)} kcal</td></tr><tr><td>Protein</td><td>${+f.p.toFixed(1)} g</td></tr><tr><td>Carbohydrate</td><td>${+f.c.toFixed(1)} g</td></tr><tr><td>Fat</td><td>${+f.f.toFixed(1)} g</td></tr><tr><td>Sugar</td><td>${+f.s.toFixed(1)} g</td></tr></table><p class='note'>Per ${esc(f.u)}</p></div>
+ <div data-pane='a'><p class='note' style='margin:0'>${esc(f.about||'Values entered from the pack label.')}</p></div>
+ <div class='row'><button class='btn' data-add='${f.id}'>Add</button>${f.k==='mine'?`<button class='btn o' data-delp='${f.id}'>Remove</button>`:''}</div></div>`}
+let pf='all';
+const PF=[['all','All'],['ca','Canada'],['lk','Sri Lanka'],['mine','Mine'],['basic','Basic foods']];
+function renderProducts(){$('pfs').innerHTML=PF.map(x=>`<button class='tb pf' data-pf='${x[0]}' aria-pressed='${pf===x[0]}'>${x[1]}</button>`).join('');
+ const q=($('q').value||'').toLowerCase().trim();let L=ALL().filter(x=>pf==='all'||x.k===pf);if(q)L=L.filter(x=>(x.brand+' '+(x.n||'')).toLowerCase().includes(q));
+ $('pgrid').innerHTML=L.map(card).join('')||`<p class='note'>No matching products.</p>`}
+function renderAll(){const t=tot(dstr(0)),g=S.goals;
+ $('today').textContent=new Date().toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'});
+ $('rings').innerHTML=ring('Calories',t.cal,g.cal,'kcal','c2')+ring('Protein',t.p,g.p,'g','c1')+ring('Carbs',t.c,g.c,'g','c5')+ring('Fat',t.f,g.f,'g','c3')+ring('Sugar',t.s,g.s,'g','c6');
+ $('quick').innerHTML=['on-gs','allmax','f0','f4','f10'].map(id=>card(ALL().find(x=>x.id===id))).join('');
+ donut($('donut1'),t);donut($('donut2'),t);bars();
+ const es=S.entries.filter(e=>e.date===dstr(0));
+ const tp=[...es].sort((a,b)=>b.p-a.p).slice(0,3);$('topp').innerHTML=tp.length?tp.map(e=>`<div class='item'><div><b>${esc(e.name)}</b></div><b style='color:var(--c1)'>${+e.p.toFixed(1)} g</b></div>`).join(''):`<p class='note'>Log food to see your best protein sources.</p>`;
+ const k=Math.min(t.s/g.s,1);$('mfill').style.width=(k*100)+'%';$('mtxt').textContent='Sugar '+Math.round(t.s)+' / '+g.s+' g';$('meter').classList.toggle('full',t.s>=g.s);
+ $('list').innerHTML=es.length?es.map(e=>`<div class='item'><div><b>${esc(e.name)}</b>${e.demo?` <small style='display:inline'>(demo)</small>`:''}<small>${Math.round(e.cal)} kcal | P ${+e.p.toFixed(1)} C ${+e.c.toFixed(1)} F ${+e.f.toFixed(1)} | sugar ${+e.s.toFixed(1)}</small></div><button class='btn o' data-del='${e.id}' aria-label='Delete ${esc(e.name)}'>Delete</button></div>`).join(''):`<p class='note'>No entries yet today.</p>`;
+ renderProducts();
+ $('gc').value=g.cal;$('gp').value=g.p;$('gb').value=g.c;$('gf').value=g.f;$('gs').value=g.s;stagger()}
+function stagger(){document.querySelectorAll('.page:not([hidden]) .p').forEach((e,i)=>e.style.setProperty('--i',Math.min(i,14)))}
+document.addEventListener('click',e=>{const a=e.target.closest('[data-add]'),d=e.target.closest('[data-del]'),tb=e.target.closest('.tb[data-tab]'),pfb=e.target.closest('[data-pf]'),fl=e.target.closest('[data-fill]'),dp=e.target.closest('[data-delp]');
+ if(a){const f=ALL().find(x=>x.id===a.dataset.add);if(!f)return;const c=a.closest('.p');c.classList.remove('spin');void c.offsetWidth;c.classList.add('spin');const r=a.getBoundingClientRect();sparkle(r.left+r.width/2,r.top,26);add({name:f.n,cal:f.cal,p:f.p,c:f.c,f:f.f,s:f.s})}
+ if(d){S.entries=S.entries.filter(x=>String(x.id)!==d.dataset.del);save();renderAll()}
+ if(tb)tb.closest('.card').dataset.cur=tb.dataset.tab;
+ if(pfb){pf=pfb.dataset.pf;renderProducts();stagger()}
+ if(fl){$('adddet').open=true;$('pb').value=fl.dataset.fill;$('pn').focus();$('adddet').scrollIntoView({behavior:'smooth',block:'center'})}
+ if(dp){S.products=S.products.filter(x=>x.id!==dp.dataset.delp);save();renderAll()}});
+$('form').addEventListener('submit',e=>{e.preventDefault();const n=x=>Math.max(0,parseFloat($(x).value)||0);add({name:$('fn').value.trim().slice(0,60),cal:n('fc'),p:n('fp'),c:n('fb'),f:n('ff'),s:n('fs')});e.target.reset();$('fp').value=$('fb').value=$('ff').value=$('fs').value=0});
+$('pform').addEventListener('submit',e=>{e.preventDefault();const n=x=>Math.max(0,parseFloat($(x).value)||0),id='m'+Date.now();S.products.push({id,k:'mine',brand:$('pb').value,n:$('pn').value.trim().slice(0,60),u:$('pu').value.trim().slice(0,40)||'1 serving',cal:n('pc'),p:n('pp'),c:n('pbb'),f:n('pf'),s:n('ps')});lastNew=id;save();pf='mine';renderAll();e.target.reset();$('pu').value='1 serving';$('adddet').open=false;sparkle(innerWidth/2,innerHeight/3,36);if(S.products[S.products.length-1].s>=20)rush();else dispatchEvent(new Event('candy'))});
+$('gform').addEventListener('submit',e=>{e.preventDefault();const n=x=>Math.max(1,parseFloat($(x).value)||1);S.goals={cal:n('gc'),p:n('gp'),c:n('gb'),f:n('gf'),s:n('gs')};save();renderAll();$('gmsg').textContent='Goals saved.'});
+$('clrdemo').onclick=()=>{S.entries=S.entries.filter(e=>!e.demo);save();renderAll();$('gmsg').textContent='Demo data cleared.'};
+$('q').addEventListener('input',()=>{renderProducts();stagger()});$('rushbtn').onclick=rush;
+const PAGES=[['dashboard','Dashboard'],['log','Meal log'],['products','Products'],['trends','Trends'],['goals','Goals'],['about','About']];
+$('nav').innerHTML=PAGES.map(p=>`<button data-p='${p[0]}'>${p[1]}</button>`).join('');
+function go(id){if(!PAGES.some(p=>p[0]===id))id='dashboard';document.querySelectorAll('.page').forEach(s=>s.hidden=s.id!==id);document.querySelectorAll('#nav button').forEach(b=>b.setAttribute('aria-selected',b.dataset.p===id));history.replaceState(null,'','#'+id);scrollTo(0,0);stagger();dispatchEvent(new Event('candy'))}
+$('nav').addEventListener('click',e=>{const b=e.target.closest('button');if(b)go(b.dataset.p)});
+fetch('/api/health').then(r=>r.ok?'Backend detected at /api. This page still runs on its own local data.':'Standalone demo mode.').catch(()=>'Standalone demo mode. No backend found on this address.').then(t=>$('api').textContent=t);
+renderAll();go(location.hash.slice(1));
+</script>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
+<script type='module'>
+import * as THREE from 'three';
+const cv=document.getElementById('gl'),small=innerWidth<800,reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+let R;try{R=new THREE.WebGLRenderer({canvas:cv,antialias:!small})}catch(e){cv.remove()}
+if(R){
+R.setPixelRatio(Math.min(devicePixelRatio,small?1.5:2));R.shadowMap.enabled=true;R.shadowMap.type=THREE.PCFSoftShadowMap;R.toneMapping=THREE.ACESFilmicToneMapping;R.toneMappingExposure=1.15;
+const S=new THREE.Scene(),C=new THREE.PerspectiveCamera(48,1,.1,400);
+const TH={dark:{bg:0x070516,ground:0x120a30,sun:0xffd2f0,si:2.6,hemi:0x8a6cff,pal:[0xff3d9a,0xff9f1c,0xffe14d,0x2af5b5,0x38d5ff,0xa66bff]},light:{bg:0xfff0f8,ground:0xffd0ec,sun:0xfff3d6,si:3.4,hemi:0xffc2e6,pal:[0xff2d8a,0xff7a00,0xf2b600,0x00b88a,0x0092e0,0x7b3cff]}};
+let PAL=TH.dark.pal;
+const mk=(c,o={})=>new THREE.MeshStandardMaterial({color:c,roughness:.5,metalness:.1,...o});
+const mG=mk(0,{roughness:.9}),mRail=mk(0,{metalness:.7,roughness:.3}),mCoin=mk(0,{emissiveIntensity:.9,metalness:.5,roughness:.25}),mBar=mk(0,{emissiveIntensity:.6}),mBody=mk(0,{emissiveIntensity:.35}),mCap=mk(0),mPack=mk(0),mW=mk(0xffffff,{roughness:.35}),mSkin=mk(0xf0cfae),mDark=mk(0x20202a);
+S.background=new THREE.Color();S.fog=new THREE.Fog(0,40,170);
+const hemi=new THREE.HemisphereLight(0xffffff,0x202030,.9);S.add(hemi);
+const sun=new THREE.DirectionalLight(0xffffff,2.5);sun.position.set(10,22,8);sun.target.position.set(0,0,-18);sun.castShadow=true;
+sun.shadow.mapSize.set(small?1024:2048,small?1024:2048);Object.assign(sun.shadow.camera,{left:-20,right:20,top:46,bottom:-46,near:1,far:90});sun.shadow.bias=-.0006;sun.shadow.normalBias=.05;sun.shadow.radius=3;S.add(sun,sun.target);
+const glow=new THREE.PointLight(0xffffff,0,30);S.add(glow);
+const add=(g,m,x=0,y=0,z=0,sh=true)=>{const o=new THREE.Mesh(g,m);o.position.set(x,y,z);o.castShadow=sh;o.receiveShadow=true;S.add(o);return o};
+const gr=add(new THREE.PlaneGeometry(220,420),mG,0,0,-140,false);gr.rotation.x=-Math.PI/2;
+const LANES=[-2.6,0,2.6];
+LANES.forEach(x=>[-.55,.55].forEach(o=>add(new THREE.BoxGeometry(.14,.16,420),mRail,x+o,.08,-140)));
+const NS=60,sl=new THREE.InstancedMesh(new THREE.BoxGeometry(2.3,.1,.36),mW,NS*3);sl.receiveShadow=true;sl.castShadow=true;S.add(sl);
+const dm=new THREE.Object3D(),col=new THREE.Color();
+const run=new THREE.Group();S.add(run);
+const body=new THREE.Mesh(new THREE.CapsuleGeometry(.38,.75,4,10),mBody);body.position.y=1.15;body.castShadow=true;run.add(body);
+const head=new THREE.Mesh(new THREE.SphereGeometry(.3,14,12),mSkin);head.position.y=2.05;head.castShadow=true;run.add(head);
+const cap=new THREE.Mesh(new THREE.CylinderGeometry(.31,.34,.2,14),mCap);cap.position.y=2.25;cap.castShadow=true;run.add(cap);
+const bill=new THREE.Mesh(new THREE.BoxGeometry(.4,.06,.3),mCap);bill.position.set(0,2.2,-.3);bill.castShadow=true;run.add(bill);
+const pack=new THREE.Mesh(new THREE.BoxGeometry(.5,.6,.25),mPack);pack.position.set(0,1.3,.4);pack.castShadow=true;run.add(pack);
+const legL=new THREE.Mesh(new THREE.BoxGeometry(.2,.7,.22),mDark),legR=legL.clone();legL.position.set(-.18,.4,0);legR.position.set(.18,.4,0);legL.castShadow=legR.castShadow=true;run.add(legL,legR);
+const objs=[];
+function pool(n,type,mkf){for(let i=0;i<n;i++){const m=mkf();m.visible=false;S.add(m);objs.push({m,type,on:false,lane:1,len:0})}}
+pool(7,'train',()=>{const g=new THREE.Group(),bm=mk(0xffffff,{roughness:.35}),sm=mk(0xffffff,{emissiveIntensity:.8,roughness:.3});const b=new THREE.Mesh(new THREE.BoxGeometry(2.1,3,9),bm);b.position.y=1.7;b.castShadow=b.receiveShadow=true;const s=new THREE.Mesh(new THREE.BoxGeometry(2.14,.4,9.04),sm);s.position.y=1.2;const f=new THREE.Mesh(new THREE.BoxGeometry(1.5,.8,.1),sm);f.position.set(0,2.4,4.52);g.add(b,s,f);g.userData={bm,sm};return g});
+pool(5,'barrier',()=>{const g=new THREE.Group();const b=new THREE.Mesh(new THREE.BoxGeometry(2.1,.9,.5),mBar);b.position.y=.55;b.castShadow=b.receiveShadow=true;g.add(b);return g});
+pool(36,'coin',()=>{const c=new THREE.Mesh(new THREE.CylinderGeometry(.42,.42,.12,18),mCoin);c.rotation.x=Math.PI/2;c.castShadow=true;const g=new THREE.Group();g.add(c);return g});
+const LEN={train:9,barrier:.5,coin:.5};
+function spawn(type,lane,z){const o=objs.find(x=>x.type===type&&!x.on);if(!o)return null;o.on=true;o.lane=lane;o.len=LEN[type];o.m.position.set(LANES[lane],0,z);o.m.visible=true;
+ if(type==='train'){const a=Math.floor(Math.random()*6),{bm,sm}=o.m.userData;bm.color.set(PAL[a]);bm.emissive.set(PAL[a]);bm.emissiveIntensity=.18;sm.color.set(PAL[(a+3)%6]);sm.emissive.set(PAL[(a+3)%6])}return o}
+function laneBusy(lane,z,r){return objs.some(o=>o.on&&o.type==='train'&&o.lane===lane&&Math.abs(o.m.position.z-z)<r)}
+const NC=small?70:150,cubes=new THREE.InstancedMesh(new THREE.BoxGeometry(.32,.32,.32),mW,NC),cand=new THREE.InstancedMesh(new THREE.SphereGeometry(.2,10,8),mW,NC);S.add(cubes,cand);
+const rn=[];for(let i=0;i<NC;i++)rn.push({x:(Math.random()-.5)*34,y:Math.random()*26,z:-45+Math.random()*52,v:3+Math.random()*4,r:Math.random()*6});
+function recolor(){const t=TH[document.documentElement.dataset.theme]||TH.dark;PAL=t.pal;S.background.set(t.bg);S.fog.color.set(t.bg);mG.color.set(t.ground);mRail.color.set(PAL[4]);mCoin.color.set(PAL[2]);mCoin.emissive.set(PAL[2]);mBar.color.set(PAL[0]);mBar.emissive.set(PAL[0]);mBody.color.set(PAL[0]);mBody.emissive.set(PAL[0]);mCap.color.set(PAL[2]);mPack.color.set(PAL[5]);sun.color.set(t.sun);sun.intensity=t.si;hemi.color.set(t.hemi);glow.color.set(PAL[0]);
+ for(let i=0;i<NS*3;i++)sl.setColorAt(i,col.set(PAL[i%6]));sl.instanceColor.needsUpdate=true;
+ for(let i=0;i<NC;i++){cubes.setColorAt(i,col.set(PAL[i%6]).lerp(new THREE.Color(0xffffff),.5));cand.setColorAt(i,col.set(PAL[(i+2)%6]))}cubes.instanceColor.needsUpdate=true;cand.instanceColor.needsUpdate=true}
+recolor();addEventListener('themechange',recolor);
+let rushT=0,coins=0,vy=0,jump=false,rx=0,mx=0,my=0,tSpawn=0,tCoin=2,dist=0,burst=0,lastT=0;
+addEventListener('sugarrush',()=>{rushT=7;burst=1});addEventListener('candy',()=>{burst=Math.max(burst,.6)});
+addEventListener('pointermove',e=>{mx=e.clientX/innerWidth-.5;my=e.clientY/innerHeight-.5});
+const fit=()=>{R.setSize(innerWidth,innerHeight,false);C.aspect=innerWidth/innerHeight;C.updateProjectionMatrix()};addEventListener('resize',fit);fit();
+const clock=new THREE.Clock();
+R.setAnimationLoop(()=>{
+ if(document.hidden)return;
+ const t=clock.getElapsedTime(),dt=Math.min(t-lastT,.05);lastT=t;
+ const rf=Math.min(rushT/7,1)*(rushT>5.5?1:Math.min(rushT/5.5,1)),sp=(reduce?6:22)*(1+1.3*rf);
+ if(rushT>0)rushT-=dt;dist+=sp*dt;
+ tSpawn-=dt*(1+rf);if(tSpawn<=0){tSpawn=1.1+Math.random()*.9;const r=Math.random(),lane=Math.floor(Math.random()*3);
+  if(r<.5){if(!laneBusy((lane+1)%3,-150,16)||!laneBusy((lane+2)%3,-150,16)){if(!laneBusy(lane,-150,16))spawn('train',lane,-150)}}
+  else if(r<.75)spawn('barrier',lane,-150);}
+ tCoin-=dt*(1+rf);if(tCoin<=0){tCoin=2.4;const lane=Math.floor(Math.random()*3);for(let i=0;i<6;i++)spawn('coin',lane,-140-i*2.6)}
+ let cur=Math.round((rx+2.6)/2.6),danger=false,jmp=false;
+ objs.forEach(o=>{if(!o.on)return;const z=o.m.position.z;if(o.lane===cur){if(o.type==='train'&&z>-34&&z<7+o.len/2)danger=true;if(o.type==='barrier'&&z>-9&&z<1)jmp=true}});
+ if(danger){let best=cur,bd=-1;for(let l=0;l<3;l++){let near=999;objs.forEach(o=>{if(o.on&&o.type==='train'&&o.lane===l){const z=o.m.position.z+o.len/2;if(z>-6)near=Math.min(near,-(o.m.position.z-o.len/2))}});const sc=near===999?500:near+Math.random();if(Math.abs(l-cur)<=1&&sc>bd){bd=sc;best=l}}cur=best}
+ if(jmp&&!jump){jump=true;vy=9}
+ rx+=((LANES[cur])-rx)*Math.min(1,dt*9);
+ if(jump){vy-=24*dt;run.position.y+=vy*dt;if(run.position.y<=0){run.position.y=0;jump=false}}
+ run.position.x=rx;run.rotation.z=-(LANES[cur]-rx)*.08;
+ const ph=t*(10+8*rf);legL.rotation.x=Math.sin(ph)*.8;legR.rotation.x=-Math.sin(ph)*.8;body.position.y=1.15+(jump?0:Math.abs(Math.sin(ph))*.07);
+ objs.forEach(o=>{if(!o.on)return;const p=o.m.position;p.z+=sp*dt*(o.type==='train'?.85:1);if(o.type==='coin'){o.m.rotation.y=t*4;p.y=1.1+Math.sin(t*5+p.z)*.15;if(Math.abs(p.z)<1.1&&Math.abs(p.x-rx)<1.1){o.on=false;o.m.visible=false;coins++;const el=document.getElementById('coins');if(el)el.textContent=coins}}
+  if(p.z>16){o.on=false;o.m.visible=false}});
+ const off=dist%3;let k=0;for(let l=0;l<3;l++)for(let i=0;i<NS;i++){dm.position.set(LANES[l],.03,10-i*3+off);dm.updateMatrix();sl.setMatrixAt(k++,dm.matrix)}sl.instanceMatrix.needsUpdate=true;
+ const act=Math.floor(NC*(.18+.82*rf+burst*.5));burst=Math.max(0,burst-dt*.8);
+ for(let i=0;i<NC;i++){const r=rn[i];if(i<act){r.y-=r.v*dt*(1+rf);r.r+=dt;if(r.y<0){r.y=24+Math.random()*6;r.x=(Math.random()-.5)*34;r.z=-45+Math.random()*52}dm.position.set(r.x,r.y,r.z);dm.rotation.set(r.r,r.r*.7,0);dm.scale.setScalar(1)}else{dm.position.set(0,-50,0);dm.scale.setScalar(.001)}dm.updateMatrix();cubes.setMatrixAt(i,dm.matrix);dm.position.x+=.7;dm.updateMatrix();cand.setMatrixAt(i,dm.matrix)}
+ cubes.instanceMatrix.needsUpdate=true;cand.instanceMatrix.needsUpdate=true;dm.rotation.set(0,0,0);dm.scale.setScalar(1);
+ glow.position.set(rx,3,3);glow.intensity=rf*60;
+ const asp=C.aspect,back=asp<1?10+(1-asp)*14:10;C.fov=48+16*rf+(asp<1?10:0);C.updateProjectionMatrix();
+ const sh=reduce?0:rf*.06;C.position.set(rx*.4+mx*2+(Math.random()-.5)*sh,5.4+my*-1.5+(Math.random()-.5)*sh,back);C.lookAt(0,1.6,-14);
+ R.render(S,C)});
+}
+</script>
+</body>
+</html>
